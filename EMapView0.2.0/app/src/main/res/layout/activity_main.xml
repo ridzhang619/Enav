@@ -51,6 +51,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Vessel"/>
+        <Button
+            android:id="@+id/draw4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vessel1"/>
+        <Button
+            android:id="@+id/draw5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DesSub"/>
     </LinearLayout>
 
     <!--<com.example.administrator.emapview.view.ViewTouch-->

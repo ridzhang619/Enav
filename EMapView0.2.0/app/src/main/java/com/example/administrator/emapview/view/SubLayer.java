@@ -67,25 +67,29 @@ public class SubLayer {
      * 销毁sublayer
      */
     public void destroySubLayer(){
-        EchartPersistablelayer.EChart_InvokePLayerCreateSubLayer.Builder ivk = EchartPersistablelayer.EChart_InvokePLayerCreateSubLayer.newBuilder();
+        EchartPersistablelayer.EChart_InvokePLayerDestroySubLayer.Builder ivk = EchartPersistablelayer.EChart_InvokePLayerDestroySubLayer.newBuilder();
         Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
         hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_PLAYER_DESTROY_SUBLAYER);
         ivk.setHdr(hdr);
 
         ivk.setLayerId(mPersistableLayerId);
+        ivk.setSublayerId(mSubLayerId);
         byte[] b = op.invoke(hdr.getMsg(), ivk);
-        try{
-            EchartPersistablelayer.EChart_ResultPLayerDestroySubLayer r = EchartPersistablelayer.EChart_ResultPLayerDestroySubLayer.parseFrom(b);
-            assert(mSubLayerId == 0);
-//            mSubLayerId = r.getSublayerId();
-        }
-        catch (Exception e){
-            assert(false);
-            e.printStackTrace();
-        }
-        finally{
-
-        }
+        mSubLayerId = 0;
+//        listener.updatePersistable(mSubLayerId);
+//        try{
+//            EchartPersistablelayer.EChart_ResultPLayerDestroySubLayer r = EchartPersistablelayer.EChart_ResultPLayerDestroySubLayer.parseFrom(b);
+//            assert(mSubLayerId == 0);
+////            mSubLayerId = r.getSublayerId();
+//            mSubLayerId = 0;
+//        }
+//        catch (Exception e){
+//            assert(false);
+//            e.printStackTrace();
+//        }
+//        finally{
+//
+//        }
     }
 
     public void beginDraw(){

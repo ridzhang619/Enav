@@ -16,6 +16,10 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
+    VesselLayer vl = new VesselLayer();
+    SubLayer sl1 = new SubLayer();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
         bt4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SubLayer sl = new SubLayer();
-                view.setSubLayer(sl);
+                view.setSubLayer(sl1);//通过mapview 将id 和 op 对象带给subLayer
                 view.setDrawMode(MatrixNavigateMapView.MODE_DRAW_CIRCLE);
             }
         });
@@ -66,14 +69,31 @@ public class MainActivity extends AppCompatActivity {
         bt5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VesselLayer vl = new VesselLayer();
-                view.setVessel(vl);
+
+                view.setVessel(vl);//通过mapview 将id 和 op 对象带给vesselLayer
                 Random random = new Random();
                 vl.updateVesselLayer(1111,random.nextInt(360),(int)System.currentTimeMillis()/1000,
                         (float)MatrixNavigateMapView.INIT_LONGITUDE,
                         (float)MatrixNavigateMapView.INIT_LATITUDE);
             }
         });
-
+        Button bt6 = (Button)findViewById(R.id.draw4);
+        bt6.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Random random = new Random();
+                view.setVessel(vl);//通过mapview 将id 和 op 对象带给vesselLayer
+                vl.updateVesselLayer(2222,random.nextInt(360),(int)System.currentTimeMillis()/1000,
+                        (float)MatrixNavigateMapView.INIT_LONGITUDE,
+                        (float)MatrixNavigateMapView.INIT_LATITUDE);
+            }
+        });
+        Button bt7 = (Button)findViewById(R.id.draw5);
+        bt7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sl1.destroySubLayer();
+            }
+        });
     }
 }

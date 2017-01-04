@@ -9,3 +9,9 @@
 1.封装sublayer 和 vessellayer
 2.编写sublayer和vessellayer的回调
 3.实现绘制图形和船舶图形的调用
+
+0.3.0
+
+1.重构persistablelayer,baseMapLayer结构,从navigateMapView中分离出来
+
+

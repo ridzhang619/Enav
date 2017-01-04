@@ -8,16 +8,19 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import com.example.administrator.emapview.R;
+import com.example.administrator.emapview.view.BaseMapLayer;
 import com.example.administrator.emapview.view.MatrixNavigateMapView;
+import com.example.administrator.emapview.view.PersistableLayer;
 import com.example.administrator.emapview.view.SubLayer;
 import com.example.administrator.emapview.view.VesselLayer;
+import com.ndk.echart.EChartOperation;
 
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    VesselLayer vl = new VesselLayer();
-    SubLayer sl1 = new SubLayer();
+
+    private SubLayer subLayerCircle;
 
 
     @Override
@@ -25,54 +28,61 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
-        //透明状态栏
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        //透明导航栏
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        final MatrixNavigateMapView view = (MatrixNavigateMapView)findViewById(R.id.enav_map_view);
-        view.initNavigateMapView(this);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);        //透明状态栏
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);        //透明导航栏
+
+        final MatrixNavigateMapView mapView = (MatrixNavigateMapView)findViewById(R.id.enav_map_view);
+        BaseMapLayer baseMapLayer = new BaseMapLayer(this,mapView);
+        final int mapViewId = baseMapLayer.getMapViewId();
+        final EChartOperation op = baseMapLayer.getOp();
+        PersistableLayer layer = new PersistableLayer(mapViewId,op);
+        final int persistableId = layer.getPersistableId();
+        mapView.initNavigateMapView(this,op,mapViewId);
+        final VesselLayer vl = new VesselLayer(mapViewId,op,mapView);
+
 
         Button bt1 = (Button)findViewById(R.id.handle);
         bt1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                view.setDrawMode(MatrixNavigateMapView.MODE_HANDLE);
+                mapView.setDrawMode(MatrixNavigateMapView.MODE_HANDLE);
             }
         });
-        Button bt2 = (Button)findViewById(R.id.draw);
+        Button bt2 = (Button)findViewById(R.id.draw);//line
         bt2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SubLayer sl = new SubLayer();
-                view.setSubLayer(sl);
-                view.setDrawMode(MatrixNavigateMapView.MODE_DRAW_LINE);
+                final SubLayer subLayer = new SubLayer(mapViewId,op,persistableId,mapView);
+                mapView.setSubLayer(subLayer);
+                mapView.setDrawMode(MatrixNavigateMapView.MODE_DRAW_LINE);
             }
         });
-        Button bt3 = (Button)findViewById(R.id.draw1);
+        Button bt3 = (Button)findViewById(R.id.draw1);//polygon
         bt3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SubLayer sl = new SubLayer();
-                view.setSubLayer(sl);
-                view.setDrawMode(MatrixNavigateMapView.MODE_DRAW_POLYGON);
+                final SubLayer subLayer = new SubLayer(mapViewId,op,persistableId,mapView);
+                mapView.setSubLayer(subLayer);
+                mapView.setDrawMode(MatrixNavigateMapView.MODE_DRAW_POLYGON);
             }
         });
-        Button bt4 = (Button)findViewById(R.id.draw2);
+        Button bt4 = (Button)findViewById(R.id.draw2);//circle
         bt4.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
-                view.setSubLayer(sl1);//通过mapview 将id 和 op 对象带给subLayer
-                view.setDrawMode(MatrixNavigateMapView.MODE_DRAW_CIRCLE);
+               subLayerCircle = new SubLayer(mapViewId,op,persistableId,mapView);
+                mapView.setSubLayer(subLayerCircle);
+                mapView.setDrawMode(MatrixNavigateMapView.MODE_DRAW_CIRCLE);
             }
         });
         Button bt5 = (Button)findViewById(R.id.draw3);
         bt5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                view.setVessel(vl);//通过mapview 将id 和 op 对象带给vesselLayer
                 Random random = new Random();
-                vl.updateVesselLayer(1111,random.nextInt(360),(int)System.currentTimeMillis()/1000,
+                vl.updateVesselLayer(2223,random.nextInt(360),(int)System.currentTimeMillis()/1000,
                         (float)MatrixNavigateMapView.INIT_LONGITUDE,
                         (float)MatrixNavigateMapView.INIT_LATITUDE);
             }
@@ -82,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Random random = new Random();
-                view.setVessel(vl);//通过mapview 将id 和 op 对象带给vesselLayer
                 vl.updateVesselLayer(2222,random.nextInt(360),(int)System.currentTimeMillis()/1000,
                         (float)MatrixNavigateMapView.INIT_LONGITUDE,
                         (float)MatrixNavigateMapView.INIT_LATITUDE);
@@ -92,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         bt7.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sl1.destroySubLayer();
+                subLayerCircle.destroySubLayer(subLayerCircle.getSubLayerId());
             }
         });
     }

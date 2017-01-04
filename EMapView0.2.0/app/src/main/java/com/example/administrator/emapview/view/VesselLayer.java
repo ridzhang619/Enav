@@ -20,7 +20,7 @@ public class VesselLayer {
      */
     private UpdateVesselLayerListener listener;
 
-    public void setVesselLayerData(int mapViewId,EChartOperation op,UpdateVesselLayerListener listener){
+    public VesselLayer(int mapViewId,EChartOperation op,UpdateVesselLayerListener listener){
         mMapViewId = mapViewId;
         this.op = op;
         this.listener = listener;

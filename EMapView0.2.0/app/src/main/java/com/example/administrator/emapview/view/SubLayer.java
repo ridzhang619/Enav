@@ -28,18 +28,17 @@ public class SubLayer {
      */
     private UpdatePersistableListener listener;
 
-    public void setSubLayerData(int persistableLayerId,EChartOperation op,int mapViewId,UpdatePersistableListener listener){
+    public SubLayer(int mapViewId,EChartOperation op,int persistableLayerId,UpdatePersistableListener listener) {
         mPersistableLayerId  = persistableLayerId;
         this.op = op;
         mMapViewId = mapViewId;
         this.listener = listener;
         CreateSubLayer();
     }
-
     /**
      * 创建sublayer层
      */
-    public void CreateSubLayer(){
+    private void CreateSubLayer(){
         EchartPersistablelayer.EChart_InvokePLayerCreateSubLayer.Builder ivk = EchartPersistablelayer.EChart_InvokePLayerCreateSubLayer.newBuilder();
         Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
         hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_PLAYER_CREATE_SUBLAYER);
@@ -63,33 +62,25 @@ public class SubLayer {
 
     }
 
+    public int getSubLayerId(){
+        return mSubLayerId;
+    }
+
+
     /**
      * 销毁sublayer
      */
-    public void destroySubLayer(){
+    public void destroySubLayer(int subLayerId){
         EchartPersistablelayer.EChart_InvokePLayerDestroySubLayer.Builder ivk = EchartPersistablelayer.EChart_InvokePLayerDestroySubLayer.newBuilder();
         Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
         hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_PLAYER_DESTROY_SUBLAYER);
         ivk.setHdr(hdr);
 
         ivk.setLayerId(mPersistableLayerId);
-        ivk.setSublayerId(mSubLayerId);
+        ivk.setSublayerId(subLayerId);
         byte[] b = op.invoke(hdr.getMsg(), ivk);
         mSubLayerId = 0;
-//        listener.updatePersistable(mSubLayerId);
-//        try{
-//            EchartPersistablelayer.EChart_ResultPLayerDestroySubLayer r = EchartPersistablelayer.EChart_ResultPLayerDestroySubLayer.parseFrom(b);
-//            assert(mSubLayerId == 0);
-////            mSubLayerId = r.getSublayerId();
-//            mSubLayerId = 0;
-//        }
-//        catch (Exception e){
-//            assert(false);
-//            e.printStackTrace();
-//        }
-//        finally{
-//
-//        }
+        updatePersistableLayer();
     }
 
     public void beginDraw(){
@@ -322,5 +313,6 @@ public class SubLayer {
         ivk.setPt(pt);
         op.invoke(hdr.getMsg(), ivk);
     }
+
 
 }

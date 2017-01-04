@@ -45,7 +45,7 @@ import java.util.TimerTask;
 public class MatrixNavigateMapView extends ImageView implements View.OnTouchListener,GestureListener,UpdatePersistableListener,UpdateVesselLayerListener {
 
     private Activity mActivity;
-    private EChartOperation op = new EChartOperation();
+    private EChartOperation op;
     /**
      * 海图id
      */
@@ -244,17 +244,13 @@ public class MatrixNavigateMapView extends ImageView implements View.OnTouchList
 
 
 
-    public void  initNavigateMapView(Activity activity){
-        mActivity = activity;
-        copy(R.raw.res_db, "res.db");
-        copy(R.raw.us5md12m_000_ach, "US5MD12M.000.ach");
-        copy(R.raw.us5md12m_000_ifo, "US5MD12M.000.ifo");
-        copy(R.raw.serif_ttf, "serif.ttf");
-        copy(R.raw.sans_serif_ttf, "sans-serif.ttf");
-        copy(R.raw.gur_png, "gur.png");
+    public void  initNavigateMapView(Activity activity,EChartOperation op,int mapViewId){
         mode = MODE_HANDLE;
-        init();
-        initPersistableLayer();
+        this.op = op;
+        mActivity = activity;
+        mMapviewId = mapViewId;
+//        init();
+//        initPersistableLayer();
         restartTimer();
         setOnTouchListener(this);
     }
@@ -321,201 +317,6 @@ public class MatrixNavigateMapView extends ImageView implements View.OnTouchList
 
     }
 
-
-
-    private void copy(int id, String filename)
-    {
-        try
-        {
-            InputStream in = getResources().openRawResource(id);
-            int length = in.available();
-            byte [] buffer = new byte[length];
-            in.read(buffer);
-            in.close();
-
-            String path = mActivity.getFilesDir().getPath();
-            File f = new File(path + "/" + filename);
-            if(!f.exists())
-            {
-                f.createNewFile();
-
-                FileOutputStream fs = new FileOutputStream(f);
-                fs.write(buffer);
-                fs.close();
-            }
-
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        finally {
-
-        }
-
-    }
-
-    public void init(){
-        {
-            Echart.EChart_InvokeInit.Builder ivk  = Echart.EChart_InvokeInit.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_INIT);
-            ivk.setHdr(hdr);
-
-            ivk.setMapPath(mActivity.getFilesDir().getPath());
-            ivk.setFontPath(mActivity.getFilesDir().getPath());
-            ivk.setDbFilename(mActivity.getFilesDir().getPath() + "/res.db");
-            ivk.setFontPath(mActivity.getFilesDir().getPath());
-            ivk.setPngPath(mActivity.getFilesDir().getPath());
-
-            op.invoke(hdr.getMsg(), ivk);
-        }
-
-        {
-            EchartMapview.EChart_InvokeMapViewCreate.Builder ivk = EchartMapview.EChart_InvokeMapViewCreate.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_MAPVIEW_CREATE);
-            ivk.setHdr(hdr);
-
-            DisplayMetrics metric = new DisplayMetrics();
-            mActivity.getWindowManager().getDefaultDisplay().getMetrics(metric);
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) this.getLayoutParams();
-            params.width = metric.widthPixels;
-            params.height = metric.heightPixels;
-            ivk.setMaxWidth(params.width);
-            ivk.setMaxHeight(params.height);
-            byte[] b = op.invoke(hdr.getMsg(), ivk);
-            try
-            {
-                EchartMapview.EChart_ResultMapViewCreate r = EchartMapview.EChart_ResultMapViewCreate.parseFrom(b);
-                assert(mMapviewId == 0);
-                mMapviewId = r.getMapviewId();
-            }
-            catch (Exception e)
-            {
-                assert(false);
-                e.printStackTrace();
-            }
-            finally
-            {
-            }
-        }
-
-        setParams();
-    }
-    private void setParams()
-    {
-        {
-            EchartMapview.EChart_InvokeMapViewSetDpi.Builder ivk = EchartMapview.EChart_InvokeMapViewSetDpi.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_MAPVIEW_SET_DPI);
-            ivk.setHdr(hdr);
-
-            ivk.setMapviewId(mMapviewId);
-            DisplayMetrics metric = new  DisplayMetrics();
-            mActivity.getWindowManager().getDefaultDisplay().getMetrics(metric);
-            ivk.setDpi(metric.densityDpi);
-
-            op.invoke(hdr.getMsg(), ivk);
-        }
-
-        {
-            EchartMapview.EChart_InvokeMapViewSetScale.Builder ivk = EchartMapview.EChart_InvokeMapViewSetScale.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_MAPVIEW_SET_SCALE);
-            ivk.setHdr(hdr);
-
-            ivk.setMapviewId(mMapviewId);
-            ivk.setScale(80000);
-
-            op.invoke(hdr.getMsg(), ivk);
-        }
-
-        {
-            EchartMapview.EChart_InvokeMapViewSetScreenSize.Builder ivk = EchartMapview.EChart_InvokeMapViewSetScreenSize.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_MAPVIEW_SET_SCREEN_SIZE);
-            ivk.setHdr(hdr);
-
-//            ImageView img = (ImageView)findViewById(R.id.imageView);
-            ViewGroup.LayoutParams params = this.getLayoutParams();
-
-            ivk.setMapviewId(mMapviewId);
-            ivk.setWidth(params.width);
-            ivk.setHeight(params.height);
-
-            op.invoke(hdr.getMsg(), ivk);
-        }
-
-        {
-            EchartMapview.EChart_InvokeMapViewSetCenter.Builder ivk = EchartMapview.EChart_InvokeMapViewSetCenter.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_MAPVIEW_SET_CENTER);
-            ivk.setHdr(hdr);
-
-            ivk.setMapviewId(mMapviewId);
-            ivk.setLongitude((float)INIT_LONGITUDE);
-            ivk.setLatitude((float)INIT_LATITUDE);
-
-            op.invoke(hdr.getMsg(), ivk);
-        }
-    }
-
-
-    private void initPersistableLayer()
-    {
-        {
-            EchartMapview.EChart_InvokeMapViewGetPersistableLayer.Builder ivk = EchartMapview.EChart_InvokeMapViewGetPersistableLayer.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_MAPVIEW_GET_PERSISTABLE_LAYER);
-            ivk.setHdr(hdr);
-
-            ivk.setMapviewId(mMapviewId);
-            byte[] b = op.invoke(hdr.getMsg(), ivk);
-            try
-            {
-                EchartMapview.EChart_ResultMapViewGetPersistableLayer r = EchartMapview.EChart_ResultMapViewGetPersistableLayer.parseFrom(b);
-                assert(mPersistableLayerId == 0);
-                mPersistableLayerId = r.getLayerId();
-            }
-            catch (Exception e)
-            {
-                assert(false);
-                e.printStackTrace();
-            }
-            finally
-            {
-            }
-        }
-//        createSubLayer();
-    }
-
-    private void createSubLayer() {
-        {
-            EchartPersistablelayer.EChart_InvokePLayerCreateSubLayer.Builder ivk = EchartPersistablelayer.EChart_InvokePLayerCreateSubLayer.newBuilder();
-            Echart.EChart_InvokeHeader.Builder hdr = Echart.EChart_InvokeHeader.newBuilder();
-            hdr.setMsg(Echart.EChart_MsgType.MSG_INVOKE_PLAYER_CREATE_SUBLAYER);
-            ivk.setHdr(hdr);
-
-            ivk.setLayerId(mPersistableLayerId);
-            byte[] b = op.invoke(hdr.getMsg(), ivk);
-            try
-            {
-                EchartPersistablelayer.EChart_ResultPLayerCreateSubLayer r = EchartPersistablelayer.EChart_ResultPLayerCreateSubLayer.parseFrom(b);
-                assert(mSubLayerId == 0);
-                mSubLayerId = r.getSublayerId();
-            }
-            catch (Exception e)
-            {
-                assert(false);
-                e.printStackTrace();
-            }
-            finally
-            {
-            }
-        }
-    }
-
     public void draw(int context){
         {
             EchartMapview.EChart_InvokeMapViewDraw.Builder ivk = EchartMapview.EChart_InvokeMapViewDraw.newBuilder();
@@ -570,21 +371,8 @@ public class MatrixNavigateMapView extends ImageView implements View.OnTouchList
         }
     }
 
-    /**
-     * 设置sublayer图层,并给当前成员变量赋值
-     * @param subLayer
-     */
-    public void setSubLayer(SubLayer subLayer){
-        mSubLayer = subLayer;
-        mSubLayer.setSubLayerData(mPersistableLayerId,op,mMapviewId,this);
-    }
-
-    /**
-     * 设置vesselLayer图层
-     * @param layer
-     */
-    public void setVessel(VesselLayer layer){
-        layer.setVesselLayerData(mMapviewId,op,this);
+    public void setSubLayer(SubLayer layer){
+        mSubLayer = layer;
     }
 
     /**
@@ -593,7 +381,7 @@ public class MatrixNavigateMapView extends ImageView implements View.OnTouchList
      */
     @Override
     public void updatePersistable(int contextId) {
-        draw(contextId);
+            draw(contextId);
     }
 
     /**
@@ -624,7 +412,6 @@ public class MatrixNavigateMapView extends ImageView implements View.OnTouchList
 //            refreshZoom();//缩放之后刷新
 //        }
 //    }
-
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         //判断当前选择的模式,操作海图模式和绘制图形模型,实现不同的接口,回调不同的手势
@@ -654,9 +441,10 @@ public class MatrixNavigateMapView extends ImageView implements View.OnTouchList
                 break;
             //停止拖动时更新海图
             case GestureEvent.MODE_END_DRAG:
+//                Toast.makeText(mActivity, "MMM", Toast.LENGTH_SHORT).show();
                 if(isDragRefresh){
                     refreshDrag(dx,dy);
-//                    mSubLayer.moveTo(event.getX(),event.getY());
+//                    mSubLayer.mo  veTo(event.getX(),event.getY());
 //                    drawPng();
                     isDragRefresh = false;
                 }

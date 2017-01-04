@@ -100,7 +100,6 @@ public class GestureHandleOnTouch {
                             }
                         }
                     }
-
                 }
                 break;
             case MotionEvent.ACTION_POINTER_UP:
